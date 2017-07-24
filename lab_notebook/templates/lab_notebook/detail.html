@@ -1,0 +1,73 @@
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      // function is executed on page load
+      function drawChart() {
+        // safe filter escapes html (needed here due to issues with single quotes)
+        var chartData = {{ chartData | safe }};
+        // generate scatter chart based on standard sample results
+        var data = google.visualization.arrayToDataTable(chartData);
+
+        var options = {
+          title: 'Calibration Curve',
+          hAxis: {title: 'Concentration (%)', minValue: 0.00, maxValue: 100.00},
+          vAxis: {title: 'Absorbance', minValue: 0.000, maxValue: 1.000},
+          legend: 'top',
+          trendlines: {
+            0: {
+              type: 'linear',
+              color: 'green',
+              lineWidth: 3,
+              opacity: 0.3,
+              visibleInLegend: true
+            }
+          }
+        };
+
+        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+      }
+    </script>
+</head>
+
+<h1>{{ note.note_title }}</h1>
+<h3>Date: {{ note.note_date }}</h3>
+<p><strong>Description: </strong>{{ note.note_body }}</p>
+
+<table style="width:40%; border: 1px solid black;">
+    <tr>
+        <th style="text-align:left">Sample Name</th>
+        <th style="text-align:left">Concentration (%)</th>
+        <th style="text-align:left">Absorbance</th>
+    </tr>
+    {% for result in note.labresult_set.all %}
+        <tr>
+            {% if result.standard %}
+                <td>Standard #{{ forloop.counter }}</td>
+            {% else %}
+                <td>Unknown</td>
+            {% endif %}
+            <td>{{ result.concentration }}</td>
+            <td>{{ result.absorbance }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<br />
+
+<button>
+    <a href="{% url 'lab_notebook:index' %}">Back</a>
+</button>
+&nbsp &nbsp
+<button>
+    <a href="{% url 'lab_notebook:record' %}">Add new record</a>
+</button>
+
+<br />
+
+<div id="chart_div" style="width: 900px; height: 500px;"></div>
+

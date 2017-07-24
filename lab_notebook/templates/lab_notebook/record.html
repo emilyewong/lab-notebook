@@ -1,0 +1,210 @@
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+
+      // function is executed on button click
+      function drawChart() {
+        // create data array for chart based on form input values
+        // only get values for the standard samples
+        var chartData = [['Concentration', 'Absorbance']];
+        for (var i = 1; i <= 5; i++) {
+            var concId = 'concentration-' + i;
+            var absId = 'absorbance-' + i;
+            chartData.push([
+                parseFloat(document.getElementById(concId).value),
+                parseFloat(document.getElementById(absId).value)
+            ]);
+        }
+
+        var data = google.visualization.arrayToDataTable(chartData);
+
+        var options = {
+          title: 'Calibration Curve',
+          hAxis: {title: 'Concentration (%)', minValue: 0.00, maxValue: 100.00},
+          vAxis: {title: 'Absorbance', minValue: 0.000, maxValue: 1.000},
+          legend: 'top',
+          trendlines: {
+            0: {
+              type: 'linear',
+              color: 'green',
+              lineWidth: 3,
+              opacity: 0.3,
+              visibleInLegend: true
+            }
+          }
+        };
+
+        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+        
+        // calculate unknown sample's concentration using trendline equation
+        // y = mx + b, where x is the concentration and y is the absorbance
+        var chartDiv = document.getElementById('chart_div');
+        // inspect element shows the equation is the third text tag
+        var textTag = chartDiv.getElementsByTagName("text")[2];
+        var text = textTag.innerHTML;
+        // remove all spaces from equation string
+        var equation = text.replace(/ /g, "");
+        var multiplyIndex = equation.indexOf("*");
+        // get the value of m using substring method
+        var m = parseFloat(equation.substr(2, multiplyIndex));
+        var xIndex = parseFloat(equation.indexOf("x"));
+        // get the value of b using substring method, starting after x
+        var b = parseFloat(equation.substr(xIndex + 1));
+        // use absorbance reading to determine concentration
+        var y = parseFloat(document.getElementById('absorbance-unknown').value);
+        var x = (y - b) / m;
+        // set concentration value of unknown
+        document.getElementById('concentration-unknown').value = x;
+        document.getElementById('unknown-value').innerHTML = x;
+      }
+    </script>
+</head>
+
+<form action="{% url 'lab_notebook:save' %}" method="post">
+    {% csrf_token %}
+    <div>
+        <label for="title"><strong>Title:</strong></label>
+        <input type="text" name="title" id="title" required />
+    </div>
+    <div>
+        <label for="date"><strong>Date:</strong></label>
+        <input type="date" name="date" id="date" required />
+    </div>
+    <div>
+        <label for="body"><strong>Description:</strong></label>
+        <input type="textarea" name="body" id="body" required />
+    </div>
+    <div>
+        <span><strong>Standard #1:</strong></span>
+        <label for="concentration-1">Concentration = </label>
+        <input
+            type="text"
+            name="concentration-1"
+            id="concentration-1"
+            placeholder="0.00% to 100.00%"
+            pattern="[0-9]{1,3}[\.][0-9]{2}"
+            required />
+        &nbsp &nbsp
+        <label for="absorbance-1">Absorbance = </label>
+        <input
+            type="text"
+            name="absorbance-1"
+            id="absorbance-1"
+            placeholder="0.000 to 1.000"
+            pattern="[0-1]{1}[\.][0-9]{3}"
+            required />
+    </div>
+    <div>
+        <span><strong>Standard #2:</strong></span>
+        <label for="concentration-2">Concentration = </label>
+        <input
+            type="text"
+            name="concentration-2"
+            id="concentration-2"
+            placeholder="0.00% to 100.00%"
+            pattern="[0-9]{1,3}[\.][0-9]{2}"
+            required />
+        &nbsp &nbsp
+        <label for="absorbance-2">Absorbance = </label>
+        <input
+            type="text"
+            name="absorbance-2"
+            id="absorbance-2"
+            placeholder="0.000 to 1.000"
+            pattern="[0-1]{1}[\.][0-9]{3}"
+            required />
+    </div>
+    <div>
+        <span><strong>Standard #3:</strong></span>
+        <label for="concentration-3">Concentration = </label>
+        <input
+            type="text"
+            name="concentration-3"
+            id="concentration-3"
+            placeholder="0.00% to 100.00%"
+            pattern="[0-9]{1,3}[\.][0-9]{2}"
+            required />
+        &nbsp &nbsp
+        <label for="absorbance-3">Absorbance = </label>
+        <input
+            type="text"
+            name="absorbance-3"
+            id="absorbance-3"
+            placeholder="0.000 to 1.000"
+            pattern="[0-1]{1}[\.][0-9]{3}"
+            required />
+    </div>
+    <div>
+        <span><strong>Standard #4:</strong></span>
+        <label for="concentration-4">Concentration = </label>
+        <input
+            type="text"
+            name="concentration-4"
+            id="concentration-4"
+            placeholder="0.00% to 100.00%"
+            pattern="[0-9]{1,3}[\.][0-9]{2}"
+            required />
+        &nbsp &nbsp
+        <label for="absorbance-4">Absorbance = </label>
+        <input
+            type="text"
+            name="absorbance-4"
+            id="absorbance-4"
+            placeholder="0.000 to 1.000"
+            pattern="[0-1]{1}[\.][0-9]{3}"
+            required />
+    </div>
+    <div>
+        <span><strong>Standard #5:</strong></span>
+        <label for="concentration-5">Concentration = </label>
+        <input
+            type="text"
+            name="concentration-5"
+            id="concentration-5"
+            placeholder="0.00% to 100.00%"
+            pattern="[0-9]{1,3}[\.][0-9]{2}"
+            required />
+        &nbsp &nbsp
+        <label for="absorbance-5">Absorbance = </label>
+        <input
+            type="text"
+            name="absorbance-5"
+            id="absorbance-5"
+            placeholder="0.000 to 1.000"
+            pattern="[0-1]{1}[\.][0-9]{3}"
+            required />
+    </div>
+    <br />
+    <div>
+        <span><strong>Unknown:</strong></span>
+        <label for="concentration-unknown">Concentration = </label>
+        <span id="unknown-value">?</span>
+        <input
+            type="hidden"
+            name="concentration-unknown"
+            id="concentration-unknown" />
+        &nbsp &nbsp
+        <label for="absorbance-unknown">Absorbance = </label>
+        <input
+            type="text"
+            name="absorbance-unknown"
+            id="absorbance-unknown"
+            placeholder="0.000 to 1.000"
+            pattern="[0-1]{1}[\.][0-9]{3}"
+            required />
+        &nbsp &nbsp
+        <button type="button" onclick="drawChart()">Calculate unknown</button>
+    </div>
+    <br />
+    <div>
+        <input type="submit" value="Save" />
+        <button>
+            <a href="{% url 'lab_notebook:index' %}">Cancel</a>
+        </button>
+    </div>
+</form>
+
+<div id="chart_div" style="width: 900px; height: 500px;"></div>

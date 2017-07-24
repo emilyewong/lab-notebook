@@ -1,0 +1,20 @@
+<h1>Lab Records</h1>
+    
+<button>
+    <a href="{% url 'lab_notebook:record' %}">Add new record</a>
+</button>
+
+<!-- Display list of all notes in db -->    
+<ol>
+    {% for note in note_list %}
+        <li>
+            <strong>{{ note.note_title }}</strong>
+            &nbsp
+            {{ note.note_date }}
+            &nbsp
+            <button>
+                <a href="{% url 'lab_notebook:detail' note.id %}">View</a>
+            </button>
+        </li>
+    {% endfor %}
+</ol>
