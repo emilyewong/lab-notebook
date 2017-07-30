@@ -1,20 +1,42 @@
-<h1>Lab Records</h1>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="{% static 'lab_notebook/style.css' %}" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
     
-<button>
-    <a href="{% url 'lab_notebook:record' %}">Add new record</a>
-</button>
-
-<!-- Display list of all notes in db -->    
-<ol>
-    {% for note in note_list %}
-        <li>
-            <strong>{{ note.note_title }}</strong>
-            &nbsp
-            {{ note.note_date }}
-            &nbsp
+    <body>
+        <div class="container">
+            <h1>Lab Records</h1>
+                
             <button>
-                <a href="{% url 'lab_notebook:detail' note.id %}">View</a>
+                <a href="{% url 'lab_notebook:record' %}" style="text-decoration: none;">
+                    Add new record
+                </a>
             </button>
-        </li>
-    {% endfor %}
-</ol>
+            <br />
+            <br />
+            <!-- Display list of all notes in db -->    
+            <ol>
+                {% for note in note_list %}
+                    <li>
+                        <strong>{{ note.note_title }}</strong>
+                        &nbsp
+                        {{ note.note_date }}
+                        &nbsp
+                        <button>
+                            <a href="{% url 'lab_notebook:detail' note.id %}" style="text-decoration: none;">
+                                View
+                            </a>
+                        </button>
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+    </body>
+</html>
