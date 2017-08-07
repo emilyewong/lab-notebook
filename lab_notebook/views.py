@@ -31,49 +31,55 @@ def record(request):
 def save(request):
     # handle save of new record if POST
     if request.method == 'POST':
-        # grab input values (ideally these would be sanitized)
-        title = request.POST.get('title')
-        date = request.POST.get('date')
-        body = request.POST.get('body')
-
-        # create array of sample values
-        sample_values = []
-        for i in range(1,6):
-            concId = 'concentration-' + str(i);
-            absId = 'absorbance-' + str(i);
-            sample_values.append([request.POST.get(concId), request.POST.get(absId)])
-        
-        sample_values.append([request.POST.get('concentration-unknown'), request.POST.get('absorbance-unknown')])
-
-        # create new LabNote entry and save
-        new_note = LabNote(
-            note_title=title,
-            note_date=date,
-            note_body=body)
-        new_note.save()
-        
-        # creat new LabResult entry for standard samples and save
-        i = 0
-        while i < len(sample_values) - 1:
-            new_result = LabResult(concentration=sample_values[i][0], absorbance=sample_values[i][1], standard=1, note_id=new_note)
-            new_result.save()
-            i+=1
+        try:
+            # grab input values (ideally these would be sanitized)
+            title = request.POST.get('title')
+            date = request.POST.get('date')
+            body = request.POST.get('body')
+    
+            # create array of sample values
+            sample_values = []
+            for i in range(1,6):
+                concId = 'concentration-' + str(i);
+                absId = 'absorbance-' + str(i);
+                sample_values.append([request.POST.get(concId), request.POST.get(absId)])
             
-        # creat new LabResult entry for unknown sample and save
-        j = len(sample_values) - 1
-        new_result_unknown = LabResult(concentration=sample_values[j][0], absorbance=sample_values[j][1], standard=0, note_id=new_note)
-        new_result_unknown.save()
-
-        # display details page after save complete
-        results = LabResult.objects.filter(note_id=new_note, standard=1)
-        chartData = [['Concentration', 'Absorbance']]
-        for item in results:
-            chartData.append([float(item.concentration), float(item.absorbance)])
-        context = {'note': new_note, 'chartData': chartData}
-        return render(request, 'lab_notebook/detail.html', context)
-
+            sample_values.append([request.POST.get('concentration-unknown'), request.POST.get('absorbance-unknown')])
+    
+            # create new LabNote entry and save
+            new_note = LabNote(
+                note_title=title,
+                note_date=date,
+                note_body=body)
+            new_note.save()
+            
+            # create new LabResult entry for standard samples and save
+            i = 0
+            while i < len(sample_values) - 1:
+                new_result = LabResult(concentration=sample_values[i][0], absorbance=sample_values[i][1], standard=1, note_id=new_note)
+                new_result.save()
+                i+=1
+                
+            # create new LabResult entry for unknown sample and save
+            j = len(sample_values) - 1
+            new_result_unknown = LabResult(concentration=sample_values[j][0], absorbance=sample_values[j][1], standard=0, note_id=new_note)
+            new_result_unknown.save()
+            
+            # display details page after save complete
+            results = LabResult.objects.filter(note_id=new_note, standard=1)
+            chartData = [['Concentration', 'Absorbance']]
+            for item in results:
+                chartData.append([float(item.concentration), float(item.absorbance)])
+            context = {'note': new_note, 'chartData': chartData}
+            return render(request, 'lab_notebook/detail.html', context)
+        except:
+            # go to index page if error occurs
+            note_list = LabNote.objects.order_by('note_date')
+            context = {'note_list': note_list}
+            return render(request, 'lab_notebook/index.html', context)
     else:
         # show index page if not POST
-        latest_note_list = LabNote.objects.order_by('note_date')
-        context = {'latest_note_list': latest_note_list}
+        note_list = LabNote.objects.order_by('note_date')
+        context = {'note_list': note_list}
         return render(request, 'lab_notebook/index.html', context)
+    
