@@ -31,6 +31,9 @@
                     if (isNaN(chartData[j][k])) { return; }
                 }
             }
+            
+            var y = parseFloat(document.getElementById('absorbance-unknown').value);
+            if (isNaN(y)) { return; }
     
             var data = google.visualization.arrayToDataTable(chartData);
     
@@ -69,16 +72,14 @@
             // get the value of b using substring method, starting after x
             var b = parseFloat(equation.substr(xIndex + 1));
             // use absorbance reading to determine concentration
-            var y = parseFloat(document.getElementById('absorbance-unknown').value);
-            var x = (y - b) / m;
+            var x = 0;
+            // check for divide by zero and negative value
+            if (m > 0 && y > b) {
+                x = (y - b) / m;
+            }
             // set concentration value of unknown
             document.getElementById('concentration-unknown').value = x;
             document.getElementById('unknown-value').innerHTML = x;
-            if (isNaN(x)) {
-                document.getElementById('submit-button').disabled = true;
-            } else {
-                document.getElementById('submit-button').disabled = false;
-            }
           }
         </script>
     </head>
@@ -208,7 +209,8 @@
                     <input
                         type="hidden"
                         name="concentration-unknown"
-                        id="concentration-unknown" />
+                        id="concentration-unknown"
+                        value=0 />
                     &nbsp &nbsp
                     <label for="absorbance-unknown">Absorbance = </label>
                     <input
@@ -223,7 +225,7 @@
                 </div>
                 <br />
                 <div>
-                    <input type="submit" value="Save" id="submit-button" disabled=true />
+                    <input type="submit" value="Save" id="submit-button" />
                     &nbsp &nbsp
                     <button type="button">
                         <a href="{% url 'lab_notebook:index' %}" style="text-decoration: none;">
